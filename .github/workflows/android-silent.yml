@@ -1,0 +1,52 @@
+name: Build JARVIS SILENT APK - 38 Points
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+      
+      - name: Grant execute permission for gradlew
+        run: |
+          chmod +x ./gradlew 2>/dev/null || true
+          chmod +x ./web/gradlew 2>/dev/null || true
+          chmod +x ./web/app/gradlew 2>/dev/null || true
+          chmod +x ./app/gradlew 2>/dev/null || true
+      
+      - name: Build with Gradle
+        run: |
+          if [ -f "./gradlew" ]; then
+            ./gradlew assembleDebug
+          elif [ -f "./app/gradlew" ]; then
+            ./app/gradlew assembleDebug
+          elif [ -f "./web/gradlew" ]; then
+            ./web/gradlew assembleDebug
+          elif [ -f "./web/app/gradlew" ]; then
+            cd web/app && ./gradlew assembleDebug
+          else
+            echo "No gradlew found - checking for existing APK build setup"
+            ls -R
+          fi
+      
+      - name: Upload SILENT APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: JARVIS-38-POINTS-SILENT-NO-BEEP
+          path: |
+            **/build/outputs/apk/debug/*.apk
+            **/app-debug.apk
