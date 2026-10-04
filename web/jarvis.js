@@ -78,6 +78,18 @@ async function fetchToolJson(url, options={}, timeoutMs=10000){
 
 async function handleTools(text){
   const t=text.toLowerCase();
+  // ===== ALWAYS-ON CALL MODE - EXIT + TIMEOUT - 19 FEATURES =====
+  if(conversationMode && (t.includes('bye jarvis')||t.includes('goodbye jarvis')||t.includes('end call')||t.includes('call end')||t.includes('stop listening')||t.includes('call cut')||t.trim()==='bye'||t.trim()==='stop')){
+    endConversationMode();
+    return 'Call ended Boss. Say Hey Jarvis to start again. 📞';
+  }
+  if(conversationMode){ resetConversationTimeout(); }
+  // ===== ALWAYS-ON CALL MODE - EXIT CHECK - BOTTOM TO TOP =====
+  if(conversationMode && (t.includes('bye jarvis')||t.includes('goodbye jarvis')||t.includes('end call')||t.includes('call end')||t.includes('stop listening')||t.includes('call cut')||t.trim()==='bye'||t.trim()==='stop')){
+    endConversationMode();
+    return 'Call ended Boss. Say Hey Jarvis to start again.';
+  }
+  if(conversationMode){ resetConversationTimeout(); }
 
   // ===== 19 WISHLIST - NOTES / BATTERY / CALC - ADDED BOTTOM TO TOP =====
   if(t.includes('note add') || t.includes('note rayi') || t.includes('todo add')){
@@ -1355,10 +1367,37 @@ async function sendWhatsAppFullyAuto(contact, message){
 }
 
 setupVoiceInput();
-// ===== STEP 6: "HEY JARVIS" WAKE WORD =====
+// ===== STEP 6: "HEY JARVIS" WAKE WORD + ALWAYS-ON CALL MODE - PHONE CALL LIKE =====
 let wakeMode = false;
 let wakeRec = null;
 let wakePaused = false;
+let conversationMode = false;
+let conversationTimer = null;
+let conversationTimeoutMs = 60000; // 60 sec silence -> end call
+
+function resetConversationTimeout(){
+  if(conversationTimer) clearTimeout(conversationTimer);
+  if(conversationMode){
+    conversationTimer = setTimeout(()=>{ endConversationMode(); }, conversationTimeoutMs);
+  }
+}
+function startConversationMode(){
+  conversationMode = true;
+  wakePaused = true;
+  try{ wakeRec.stop(); }catch(e){}
+  resetConversationTimeout();
+  console.log("Conversation Mode ON - phone call like");
+}
+function endConversationMode(){
+  conversationMode = false;
+  if(conversationTimer){ clearTimeout(conversationTimer); conversationTimer=null; }
+  add("SYSTEM: Conversation ended - Back to wake mode - Say 'Hey Jarvis' again 🎯", "ai");
+  speakEvenInSilentMode("Call ended Boss. Say Hey Jarvis to start again.");
+  wakePaused = false;
+  if(wakeMode){
+    setTimeout(()=>{ try{ if(wakeMode && !wakePaused) wakeRec.start(); }catch(e){} }, 1000);
+  }
+}
 
 function setupWakeWord() {
   if (!SR ||!rec) return;
@@ -1409,15 +1448,37 @@ function setupWakeWord() {
     _oldMicClick();
   };
 
-  // Command aypoyaka wake ni malli on cheyyi - SILENT 1500ms - BOTTOM TO TOP FIX
+  // Command aypoyaka - ALWAYS-ON CALL MODE - if conversationMode, keep listening, else back to wake - BOTTOM TO TOP FIX + PHONE CALL
   const _oldOnEnd = rec.onend;
   rec.onend = () => {
     if (_oldOnEnd) _oldOnEnd();
-    if (wakeMode) {
+    if (conversationMode) {
+      // phone call mode - keep listening continuously without saying hey jarvis again
+      resetConversationTimeout();
+      setTimeout(() => {
+        try {
+          // check for bye/exit commands handled elsewhere, else continue
+          if(conversationMode) {
+            rec.start();
+            micBtn.innerText = '🔴📞';
+            micBtn.style.boxShadow = '0 0 20px #0f0';
+          }
+        } catch(e){}
+      }, 800);
+    } else if (wakeMode) {
       wakePaused = false;
-      setTimeout(() => { try { if(wakeMode) wakeRec.start(); } catch(e){} }, 1500);
+      setTimeout(() => { try { if(wakeMode && !wakePaused) wakeRec.start(); } catch(e){} }, 1500);
     }
   };
+}
+
+function handleConversationExit(text){
+  const t=text.toLowerCase();
+  if(t.includes('bye jarvis')||t.includes('goodbye jarvis')||t.includes('end call')||t.includes('call end')||t.includes('stop listening')||t.includes('call cut')){
+    endConversationMode();
+    return true;
+  }
+  return false;
 }
 
 function setWakeMode(on) {
@@ -1440,18 +1501,27 @@ function setWakeMode(on) {
 }
 
 function onWakeWord() {
-  if (wakePaused) return;
+  if (wakePaused && conversationMode) return; // already in call
+  if (wakePaused && !conversationMode) {
+    // if already paused but not in conversation, still allow
+  }
   wakePaused = true;
   try { wakeRec.stop(); } catch(e){}
-  add("SYSTEM: Wake word detected! 🎯", "ai");
-  speak("Yes boss? I'm listening.");
+  if(!conversationMode){
+    add("SYSTEM: Wake word detected! 🎯 - Call started - Phone call mode ON 📞", "ai");
+    speak("Yes boss? I'm listening. Phone call mode active.");
+    startConversationMode();
+  } else {
+    add("SYSTEM: Still listening Boss 📞", "ai");
+  }
   setTimeout(() => {
     try {
       rec.start();
       micBtn.innerText = '🔴';
       micBtn.style.boxShadow = '0 0 20px red';
+      resetConversationTimeout();
     } catch(e){}
-  }, 2000);
+  }, 1200);
 }
 
 setupWakeWord();
