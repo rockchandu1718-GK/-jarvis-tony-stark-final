@@ -30,6 +30,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var isListening = false
     private var ttsReady = false
     private var torchOn = false
+    private var conversationMode = false
+    private var lastInteractionTime = 0L
+    private var conversationTimeoutMs = 60000L
 
     // ===== NOTES =====
     private fun saveNote(note: String){
@@ -131,16 +134,50 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 override fun onBufferReceived(buffer: ByteArray?) {}
                 override fun onEndOfSpeech() {}
                 override fun onError(error: Int) { 
-                    // Auto restart SILENT - no beep
-                    if (isListening) statusText.postDelayed({ startListening() }, 800) 
+                    // Auto restart SILENT - no beep - ALWAYS-ON CALL MODE
+                    if (isListening || conversationMode) {
+                        statusText.postDelayed({ 
+                            if(isListening || conversationMode){
+                                // check timeout for conversation
+                                if(conversationMode && System.currentTimeMillis()-lastInteractionTime > conversationTimeoutMs){
+                                    conversationMode=false
+                                    statusText.text="Call timeout - Back to Hey Jarvis mode 📞"
+                                    speak("Call timed out Boss. Say Hey Jarvis again.")
+                                }
+                                startListening() 
+                            }
+                        }, 800)
+                    }
                 }
                 override fun onResults(results: Bundle?) {
                     val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                     if (!matches.isNullOrEmpty()) {
                         val heard = matches[0].lowercase(Locale.ROOT)
                         heardText.text = "You: $heard"
+                        // ALWAYS-ON CALL MODE - check exit first
+                        if(conversationMode && (heard.contains("bye jarvis")||heard.contains("goodbye")||heard.contains("end call")||heard.contains("stop listening")||heard=="bye"||heard=="stop")){
+                            conversationMode=false
+                            statusText.text="Call ended Boss - Say Hey Jarvis again 📞"
+                            speak("Call ended Boss. Say Hey Jarvis to start again.")
+                            isListening=true
+                            statusText.postDelayed({ startListening() }, 1000)
+                            return
+                        }
+                        if(heard.contains("hey jarvis")){
+                            conversationMode=true
+                            lastInteractionTime=System.currentTimeMillis()
+                            statusText.text="Hey Jarvis detected! Phone call mode ON 📞"
+                            speak("Yes boss? Phone call mode active. No need to say hey jarvis again.")
+                        }
+                        lastInteractionTime=System.currentTimeMillis()
                         val reply = handle38Points(heard)
                         statusText.text = reply
+                        // Auto continue listening if in conversation mode - phone call like
+                        if(conversationMode){
+                            statusText.postDelayed({
+                                if(conversationMode) startListening()
+                            }, 800)
+                        }
                         speak(reply)
                     }
                     // SILENT LOOP - no beep
@@ -153,6 +190,13 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun handle38Points(h: String): String {
+        // 19 FEATURES ALREADY INCLUDED - notes, battery, calc, currency multi, translate multi, dictionary, etc - all in APK 38 points
+        // ALWAYS-ON CHECK
+        if(h.contains("hey jarvis") && !conversationMode){
+            conversationMode=true
+            lastInteractionTime=System.currentTimeMillis()
+            return "Yes Boss? Phone call mode ON 📞 - No need to say hey jarvis again. Say your work directly."
+        }
         // 1-3 Wake
         if((h.contains("hello") && h.contains("jarvis")) || h.contains("hey jarvis") || h.contains("hi jarvis")) return "Hello Boss, 38 features silent ready. No beep. How can I help you?"
         
