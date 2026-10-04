@@ -1330,17 +1330,17 @@ function setupWakeWord() {
     _oldMicClick();
   };
 
-  // Command aypoyaka wake ni malli on cheyyi
+    // Command aypoyaka wake ni malli on cheyyi - SILENT
   const _oldOnEnd = rec.onend;
   rec.onend = () => {
     if (_oldOnEnd) _oldOnEnd();
     if (wakeMode) {
       wakePaused = false;
-      setTimeout(() => { try { wakeRec.start(); } catch(e){} }, 1000);
+      setTimeout(() => { 
+        try { if(wakeMode) wakeRec.start(); } catch(e){} 
+      }, 1500);
     }
   };
-}
-
 function setWakeMode(on) {
   wakeMode = on;
   const wb = window._wakeBtn;
@@ -1349,14 +1349,16 @@ function setWakeMode(on) {
     wb.style.background = "#003300";
     add("SYSTEM: Wake word ON! 'Hey Jarvis' ani piluvu.", "ai");
     speak("Wake word activated. Say hey Jarvis anytime.");
-    try { wakeRec.start(); } catch(e){}
+    try { rec.stop(); } catch(e){}
+    try { wakeRec.start(); } catch(e){
+      add("SYSTEM: Mic Allow cheyyi Boss", "ai");
+    }
   } else {
     wb.innerText = "WAKE: OFF";
     wb.style.background = "#222";
     try { wakeRec.stop(); } catch(e){}
   }
 }
-
 function onWakeWord() {
   if (wakePaused) return;
   wakePaused = true;
