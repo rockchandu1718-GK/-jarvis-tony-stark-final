@@ -18,6 +18,9 @@ try {
   localStorage.removeItem('jarvis_memory');
 }
 function saveMemory(){ localStorage.setItem('jarvis_memory', JSON.stringify(MEMORY)); }
+// ===== NOTES / TODO - 19 WISHLIST POINT 1 - BOTTOM TO TOP FIX =====
+let jarvisNotes = JSON.parse(localStorage.getItem('jarvis_notes') || '[]');
+function saveNotes(){ localStorage.setItem('jarvis_notes', JSON.stringify(jarvisNotes)); }
 const chat=document.getElementById('chat');
 const input=document.getElementById('msg');
 const micBtn=document.getElementById('mic-btn');
@@ -75,6 +78,40 @@ async function fetchToolJson(url, options={}, timeoutMs=10000){
 
 async function handleTools(text){
   const t=text.toLowerCase();
+
+  // ===== 19 WISHLIST - NOTES / BATTERY / CALC - ADDED BOTTOM TO TOP =====
+  if(t.includes('note add') || t.includes('note rayi') || t.includes('todo add')){
+    const note = text.replace(/note add|note rayi|todo add/gi, '').trim();
+    if(!note) return 'Em note rayalo cheppu Boss';
+    jarvisNotes.push({text: note, time: new Date().toLocaleString()});
+    saveNotes();
+    return `Note save chesa Boss: "${note}" - 4:20 PM event laga save ayindi`;
+  }
+  if(t.includes('notes chupu') || t.includes('todo list') || t.includes('notes list') || t.includes('my notes')){
+    if(jarvisNotes.length===0) return 'Notes emi levu Boss - completely free';
+    return 'Nee Notes Boss:\n' + jarvisNotes.map((n,i)=> `${i+1}. ${n.text} - ${n.time}`).join('\n');
+  }
+  if(t.includes('note clear') || t.includes('clear notes') || t.includes('notes delete')){
+    jarvisNotes = [];
+    saveNotes();
+    return 'Anni notes clear chesa Boss - schedule clear laga';
+  }
+  if(t.includes('battery') || t.includes('battery entha')){
+    try{
+      if(!navigator.getBattery) return 'Battery API ee browser lo support cheyadu Boss';
+      const b = await navigator.getBattery();
+      const level = Math.round(b.level*100);
+      return `Battery: ${level}% - ${b.charging?'Charging':'Not charging'} Boss - Tony Stark power at ${level}%`;
+    }catch(e){ return 'Battery status teliyatledu Boss'; }
+  }
+  const calcMatch = t.match(/(?:calculate|calc|lekkacheyyi)\s+(.+)/i);
+  if(calcMatch){
+    try{
+      let expr = calcMatch[1].replace(/[^0-9+\-*/().% ]/g, '');
+      const result = Function('"use strict"; return (' + expr + ')')();
+      return `${expr} = ${result} Boss`;
+    }catch(e){ return 'Lekka tappu Boss, malli try cheyyi'; }
+  }
 
   if(/^\s*(?:please\s+)?(?:open\s+youtube|youtube\s+open|youtube)(?:\s+please)?[.!?]*\s*$/i.test(text)){ window.open('https://youtube.com','_blank','noopener,noreferrer'); return 'Opening YouTube, Boss.'; }
   if(/^\s*(?:please\s+)?(?:open\s+google|google\s+open|google)(?:\s+please)?[.!?]*\s*$/i.test(text)){ window.open('https://google.com','_blank','noopener,noreferrer'); return 'Opening Google, Boss.'; }
@@ -1294,24 +1331,23 @@ function setupWakeWord() {
     if (t.toLowerCase().includes("hey jarvis")) onWakeWord();
   };
 
-      // SILENT FIX - NO TUHU TAHA - 2 sec silent - no beep - no shuffle
+  // SILENT FIX - NO TUHU TAHA - Auto-restart silent 2000ms - no beep - BOTTOM TO TOP FIX
   wakeRec.onend = () => {
     if (wakeMode && !wakePaused) {
-      setTimeout(() => { 
-        try { if(wakeMode && !wakePaused) wakeRec.start(); } catch(e){} 
-      }, 2000);
+      setTimeout(() => { try { if(wakeMode && !wakePaused) wakeRec.start(); } catch(e){} }, 2000);
     }
   };
-wakeRec.onerror = (e) => {
-  if (e.error === "not-allowed") {
-    add("SYSTEM: Mic blocked! chrome://settings/content/microphone lo Allow cheyyi", "ai");
-    setTimeout(() => { if(wakeMode) try{ wakeRec.start(); }catch(err){} }, 3000);
-  } else if (e.error === "no-speech" || e.error === "audio-capture") {
-    if(wakeMode && !wakePaused) {
-      setTimeout(() => { try{ wakeRec.start(); }catch(err){} }, 1000);
+
+  wakeRec.onerror = (e) => {
+    if (e.error === "not-allowed") {
+      add("SYSTEM: Mic blocked! chrome://settings/content/microphone lo Allow cheyyi", "ai");
+      setTimeout(() => { if(wakeMode) try{ wakeRec.start(); }catch(err){} }, 3000);
+    } else if (e.error === "no-speech" || e.error === "audio-capture") {
+      if(wakeMode && !wakePaused) {
+        setTimeout(() => { try{ wakeRec.start(); }catch(err){} }, 1000);
+      }
     }
-  }
-};
+  };
 
   // Wake word toggle button
   const wb = document.createElement("button");
@@ -1328,17 +1364,17 @@ wakeRec.onerror = (e) => {
     _oldMicClick();
   };
 
-    // Command aypoyaka wake ni malli on cheyyi - SILENT
+  // Command aypoyaka wake ni malli on cheyyi - SILENT 1500ms - BOTTOM TO TOP FIX
   const _oldOnEnd = rec.onend;
   rec.onend = () => {
     if (_oldOnEnd) _oldOnEnd();
     if (wakeMode) {
       wakePaused = false;
-      setTimeout(() => { 
-        try { if(wakeMode) wakeRec.start(); } catch(e){} 
-      }, 1500);
+      setTimeout(() => { try { if(wakeMode) wakeRec.start(); } catch(e){} }, 1500);
     }
   };
+}
+
 function setWakeMode(on) {
   wakeMode = on;
   const wb = window._wakeBtn;
@@ -1349,7 +1385,7 @@ function setWakeMode(on) {
     speak("Wake word activated. Say hey Jarvis anytime.");
     try { rec.stop(); } catch(e){}
     try { wakeRec.start(); } catch(e){
-      add("SYSTEM: Mic Allow cheyyi Boss", "ai");
+      add("SYSTEM: Mic Allow cheyyi Boss - chrome://settings/content/microphone lo Allow", "ai");
     }
   } else {
     wb.innerText = "WAKE: OFF";
@@ -1357,6 +1393,7 @@ function setWakeMode(on) {
     try { wakeRec.stop(); } catch(e){}
   }
 }
+
 function onWakeWord() {
   if (wakePaused) return;
   wakePaused = true;
