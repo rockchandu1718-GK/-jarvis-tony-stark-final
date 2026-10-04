@@ -1294,26 +1294,24 @@ function setupWakeWord() {
     if (t.toLowerCase().includes("hey jarvis")) onWakeWord();
   };
 
-    // SILENT FIX - NO TUHU TAHA - Auto-restart silent - no beep
+      // SILENT FIX - NO TUHU TAHA - 2 sec silent - no beep - no shuffle
   wakeRec.onend = () => {
     if (wakeMode && !wakePaused) {
-      // Silent - don't restart immediately - wait 2 sec - no beep
       setTimeout(() => { 
-        try { 
-          if(wakeMode) wakeRec.start(); 
-        } catch(e){
-          console.log("Wake restart silent");
-        } 
+        try { if(wakeMode && !wakePaused) wakeRec.start(); } catch(e){} 
       }, 2000);
     }
   };
-
-  wakeRec.onerror = (e) => {
-    if (e.error === "not-allowed") {
-      add("SYSTEM: Mic blocked! Wake word OFF.", "ai");
-      setWakeMode(false);
+wakeRec.onerror = (e) => {
+  if (e.error === "not-allowed") {
+    add("SYSTEM: Mic blocked! chrome://settings/content/microphone lo Allow cheyyi", "ai");
+    setTimeout(() => { if(wakeMode) try{ wakeRec.start(); }catch(err){} }, 3000);
+  } else if (e.error === "no-speech" || e.error === "audio-capture") {
+    if(wakeMode && !wakePaused) {
+      setTimeout(() => { try{ wakeRec.start(); }catch(err){} }, 1000);
     }
-  };
+  }
+};
 
   // Wake word toggle button
   const wb = document.createElement("button");
