@@ -472,37 +472,82 @@ if(timerCommand){
     }catch(e){ return 'News service error, Boss.'; }
   }
 
+  // ===== 19 WISHLIST - TRANSLATE MULTI - BOTTOM TO TOP NEXT STEP =====
   if(/^\s*translate\b/i.test(text)){
-    const query=text.replace(/^\s*translate(?:\s+this)?\b/i,'').trim();
-    if(!query) return 'Translate format: say “translate <text>” for Telugu.';
+    let query=text.replace(/^\s*translate(?:\s+this)?\b/i,'').trim();
+    if(!query) return 'Translate format: say "translate hello to telugu / hindi / english" Boss.';
+    let target='te'; // default Telugu
+    let q=query;
+    // detect "to telugu/hindi/english/tamil"
+    const toMatch=query.match(/\s+to\s+(telugu|te|hindi|hi|english|en|tamil|ta|kannada|kn|malayalam|ml)$/i);
+    if(toMatch){
+      const lang=toMatch[1].toLowerCase();
+      const map={telugu:'te',te:'te',hindi:'hi',hi:'hi',english:'en',en:'en',tamil:'ta',ta:'ta',kannada:'kn',kn:'kn',malayalam:'ml',ml:'ml'};
+      target=map[lang]||'te';
+      q=query.replace(/\s+to\s+(telugu|te|hindi|hi|english|en|tamil|ta|kannada|kn|malayalam|ml)$/i,'').trim();
+    }
+    if(!q) return 'Em translate cheyyali Boss?';
     try{
-      const url='https://api.mymemory.translated.net/get?q='+encodeURIComponent(query)+'&langpair=en|te';
+      // Try MyMemory first
+      const url='https://api.mymemory.translated.net/get?q='+encodeURIComponent(q)+'&langpair=en|'+target;
       const data=await fetchToolJson(url);
       const translated=data?.responseData?.translatedText;
       if((data?.responseStatus!==undefined&&Number(data.responseStatus)!==200)||typeof translated!=='string'||!translated.trim()) throw new Error('Translation unavailable.');
-      return 'In Telugu: '+translated;
-    }catch(e){ return 'Translate error, Boss.'; }
+      const langName={te:'Telugu',hi:'Hindi',en:'English',ta:'Tamil',kn:'Kannada',ml:'Malayalam'}[target]||target;
+      return 'In '+langName+': '+translated+' Boss';
+    }catch(e){
+      try{
+        const gUrl='https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl='+target+'&dt=t&q='+encodeURIComponent(q);
+        const gData=await fetchToolJson(gUrl);
+        const trans=gData?.[0]?.map(s=>s[0]).join('');
+        if(trans) {
+          const langName={te:'Telugu',hi:'Hindi',en:'English',ta:'Tamil',kn:'Kannada',ml:'Malayalam'}[target]||target;
+          return 'In '+langName+': '+trans+' Boss';
+        }
+      }catch(x){}
+      return 'Translate error, Boss.';
+    }
   }
 
-  if(t.includes('dollar')||t.includes('usd')||t.includes('exchange')){
+  // ===== 19 WISHLIST - CURRENCY MULTI - BOTTOM TO TOP NEXT STEP =====
+  if(t.includes('dollar')||t.includes('usd')||t.includes('euro')||t.includes('eur')||t.includes('pound')||t.includes('gbp')||t.includes('yen')||t.includes('jpy')||t.includes('dirham')||t.includes('aed')||t.includes('rupee')||t.includes('inr')||t.includes('exchange')||t.includes('currency')){
     const amountMatch=t.match(/[-+]?\d+(?:\.\d+)?/);
     const amount=amountMatch?Number(amountMatch[0]):1;
-    if(!Number.isFinite(amount)||amount<=0) return 'Enter a dollar amount greater than zero.';
+    if(!Number.isFinite(amount)||amount<=0) return 'Enter amount greater than zero, Boss.';
+    let from='USD', to='INR';
+    if(t.includes('euro')||t.includes('eur')) from='EUR';
+    if(t.includes('pound')||t.includes('gbp')) from='GBP';
+    if(t.includes('yen')||t.includes('jpy')) from='JPY';
+    if(t.includes('dirham')||t.includes('aed')) from='AED';
+    if(t.includes('dollar')||t.includes('usd')) from='USD';
+    if(t.includes('rupee')||t.includes('inr')) { if(!t.includes('to')||t.includes('to inr')||t.includes('to rupees')) { to='INR'; } else { from='INR'; to='USD'; } }
+    // detect "X to Y" pattern
+    const toMatch2=text.match(/to\s+(inr|usd|eur|gbp|jpy|aed|rupees?|dollars?|euros?|pounds?|yen|dirham)/i);
+    if(toMatch2){
+      const m=toMatch2[1].toLowerCase();
+      if(m.startsWith('inr')||m.startsWith('rupee')) to='INR';
+      else if(m.startsWith('usd')||m.startsWith('dollar')) to='USD';
+      else if(m.startsWith('eur')||m.startsWith('euro')) to='EUR';
+      else if(m.startsWith('gbp')||m.startsWith('pound')) to='GBP';
+      else if(m.startsWith('jpy')||m.startsWith('yen')) to='JPY';
+      else if(m.startsWith('aed')||m.startsWith('dirham')) to='AED';
+    }
     let rate;
     try{
-      const data=await fetchToolJson('https://open.er-api.com/v6/latest/USD');
-      rate=Number(data?.rates?.INR);
+      const data=await fetchToolJson('https://open.er-api.com/v6/latest/'+from);
+      rate=Number(data?.rates?.[to]);
       if(!Number.isFinite(rate)||rate<=0) rate=undefined;
     }catch(e){}
     if(!Number.isFinite(rate)){
       try{
-        const backup=await fetchToolJson('https://api.frankfurter.dev/v1/latest?base=USD&symbols=INR');
-        rate=Number(backup?.rates?.INR);
+        const backup=await fetchToolJson('https://api.frankfurter.dev/v1/latest?base='+from+'&symbols='+to);
+        rate=Number(backup?.rates?.[to]);
         if(!Number.isFinite(rate)||rate<=0) rate=undefined;
       }catch(e){}
     }
     if(!Number.isFinite(rate)||rate<=0) return 'Currency service error, Boss.';
-    return amount+' US dollars is about '+Math.round(amount*rate)+' Indian rupees, Boss.';
+    const result=amount*rate;
+    return amount+' '+from+' is about '+ (result%1===0?result:result.toFixed(2)) +' '+to+', Boss - Tony Stark money converter';
   }
 
   if(t.includes('meaning')){
