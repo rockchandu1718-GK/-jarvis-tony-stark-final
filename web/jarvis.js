@@ -1294,10 +1294,17 @@ function setupWakeWord() {
     if (t.toLowerCase().includes("hey jarvis")) onWakeWord();
   };
 
-  // Auto-restart (Chrome ~1 min ki aaputhundhi, malli start chestham)
+    // SILENT FIX - NO TUHU TAHA - Auto-restart silent - no beep
   wakeRec.onend = () => {
-    if (wakeMode &&!wakePaused) {
-      setTimeout(() => { try { wakeRec.start(); } catch(e){} }, 500);
+    if (wakeMode && !wakePaused) {
+      // Silent - don't restart immediately - wait 2 sec - no beep
+      setTimeout(() => { 
+        try { 
+          if(wakeMode) wakeRec.start(); 
+        } catch(e){
+          console.log("Wake restart silent");
+        } 
+      }, 2000);
     }
   };
 
