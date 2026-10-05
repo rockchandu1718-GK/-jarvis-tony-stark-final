@@ -10,11 +10,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val tv = TextView(this).apply {
-            text = "JARVIS ONLINE\nYes Boss\n38 POINTS\nStep 1 Success"
+            text = "JARVIS ONLINE\nYes Boss\nStep 1 Success\nBlack Fix Working"
             textSize = 24f
             setTextColor(Color.CYAN)
             gravity = Gravity.CENTER
             setBackgroundColor(Color.BLACK)
+            setPadding(40,40,40,40)
         }
         setContentView(tv)
     }
