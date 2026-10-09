@@ -1,79 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JARVIS FIXED SEND WORKS</title>
-<style>
-body{background:#000;color:#0ff;font-family:monospace;margin:0;display:flex;flex-direction:column;height:100vh}
-.header{height:50px;background:#001a24;border-bottom:1px solid #0ff;display:flex;align-items:center;justify-content:space-between;padding:0 12px;font-family:Orbitron,sans-serif;font-size:11px;letter-spacing:.2em}
-#core{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.ring{width:120px;height:120px;border:2px solid #0ff;border-top-color:transparent;border-radius:50%;animation:spin 2s linear infinite;box-shadow:0 0 20px #0ff}
-@keyframes spin{to{transform:rotate(360deg)}}
-#chat{height:35vh;overflow-y:auto;background:#000a14;border-top:1px solid #0ff;padding:10px;font-size:12px}
-.msg{margin:6px 0}.user{color:#fff}.ai{color:#0ff}
-.controls{height:56px;display:flex;gap:6px;padding:6px;background:#000;border-top:1px solid #0ff}
-input{flex:1;background:#111;color:#0ff;border:1px solid #0ff;border-radius:8px;padding:10px;outline:none}
-button{padding:10px 14px;background:#003344;color:#0ff;border:1px solid #0ff;border-radius:8px}
-#send{background:#0ff;color:#000;font-weight:900}
-#overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:99}
-#box{background:#001a24;border:1px solid #0ff;border-radius:12px;padding:20px;width:90%;max-width:320px}
-#box input{width:100%;margin:10px 0}
-</style>
-</head>
-<body>
-<div id="overlay"><div id="box"><h3 style="color:#0ff;text-align:center">ENTER GEMINI API KEY</h3><input id="api-in" placeholder="AIza..."><button id="api-save" style="width:100%;background:#0ff;color:#000">SAVE</button></div></div>
-<div class="header"><span>J.A.R.V.I.S - TONY STARK FINAL - FIXED</span><span style="color:#0f0">● ONLINE</span></div>
-<div id="core"><div class="ring"></div><div style="margin-top:20px;font-size:10px;letter-spacing:.3em">HOLO • STANDBY</div></div>
-<div id="chat"></div>
-<div class="controls"><input id="msg" placeholder="Ask JARVIS..."><button id="send">➤</button><button id="clear">✕</button></div>
-<script>
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>JARVIS COMPLETE</title><style>body{background:#000;color:#0ff;font-family:monospace;margin:0;display:flex;flex-direction:column;height:100vh}.header{height:48px;background:#001a24;border-bottom:1px solid #0ff;display:flex;align-items:center;justify-content:space-between;padding:0 10px;font-size:11px;letter-spacing:.2em}#core{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}.ring{width:110px;height:110px;border:2px solid #0ff;border-top-color:transparent;border-radius:50%;animation:spin 2s linear infinite;box-shadow:0 0 18px #0ff}@keyframes spin{to{transform:rotate(360deg)}}#chat{height:36vh;overflow-y:auto;background:#000a14;border-top:1px solid #0ff;padding:10px;font-size:12px;line-height:1.4}.controls{height:58px;display:flex;gap:5px;padding:6px;background:#000;border-top:1px solid #0ff}input{flex:1;background:#111;color:#0ff;border:1px solid #0ff;border-radius:8px;padding:10px;outline:none}button{padding:10px 12px;background:#003344;color:#0ff;border:1px solid #0ff;border-radius:8px;cursor:pointer}#send{background:#0ff;color:#000;font-weight:900}#mic.rec{background:#ff0000;color:#fff;animation:pulse 1s infinite}@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}#overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:99}#box{background:#001a24;border:1px solid #0ff;border-radius:12px;padding:20px;width:90%;max-width:320px}</style></head><body><div id="overlay"><div id="box"><h3 style="color:#0ff;text-align:center">ENTER GEMINI API KEY</h3><input id="api-in" placeholder="AIza..." style="width:100%;padding:10px;background:#000;color:#0ff;border:1px solid #0ff;border-radius:6px"><button id="api-save" style="width:100%;margin-top:10px;padding:10px;background:#0ff;color:#000;border:0;border-radius:6px;font-weight:900">SAVE</button></div></div><div class="header"><span>J.A.R.V.I.S - TONY STARK FINAL - FIXED</span><span style="color:#0f0">● ONLINE</span></div><div id="core"><div class="ring"></div><div style="margin-top:18px;font-size:10px;letter-spacing:.3em">HOLO • STANDBY</div></div><div id="chat"></div><div class="controls"><input id="msg" placeholder="Ask JARVIS..."><button id="send">➤</button><button id="mic">🎤</button><button id="cam">📷</button><button id="clear">✕</button><input type="file" id="img-in" accept="image/*" style="display:none"></div><script>
 let API_KEY=localStorage.getItem('jarvis_key')||'';
-const MODELS=["gemini-2.0-flash","gemini-2.0-flash-lite","gemini-flash-latest","gemini-1.5-flash-latest"];
-const chat=document.getElementById('chat');
-const input=document.getElementById('msg');
-const sendBtn=document.getElementById('send');
-const clearBtn=document.getElementById('clear');
-const overlay=document.getElementById('overlay');
-const apiIn=document.getElementById('api-in');
-const apiSave=document.getElementById('api-save');
-function showOverlay(){overlay.style.display='flex';}
-function hideOverlay(){overlay.style.display='none';}
-if(!API_KEY) showOverlay();
-apiSave.onclick=()=>{const v=apiIn.value.trim();if(!v)return alert('Enter key');API_KEY=v;localStorage.setItem('jarvis_key',v);hideOverlay();add('SYSTEM: Key saved - Ready','ai');};
+const MODELS=["gemini-2.0-flash","gemini-2.0-flash-lite","gemini-flash-latest"];
+const chat=document.getElementById('chat'),input=document.getElementById('msg'),sendBtn=document.getElementById('send'),micBtn=document.getElementById('mic'),camBtn=document.getElementById('cam'),clearBtn=document.getElementById('clear'),imgIn=document.getElementById('img-in'),overlay=document.getElementById('overlay'),apiIn=document.getElementById('api-in'),apiSave=document.getElementById('api-save');
+function showO(){overlay.style.display='flex';}function hideO(){overlay.style.display='none';}
+if(!API_KEY)showO();
+apiSave.onclick=()=>{const v=apiIn.value.trim();if(!v)return alert('Enter key');API_KEY=v;localStorage.setItem('jarvis_key',v);hideO();add('Key saved - Ready','ai');};
 let MEMORY=[];try{MEMORY=JSON.parse(localStorage.getItem('jarvis_memory')||'[]')}catch(e){MEMORY=[]}
-function saveMem(){localStorage.setItem('jarvis_memory',JSON.stringify(MEMORY.slice(-30)));}
-function add(t,who){const d=document.createElement('div');d.className='msg '+(who==='user'?'user':'ai');d.textContent=(who==='user'?'YOU: ':'JARVIS: ')+t;chat.appendChild(d);chat.scrollTop=chat.scrollHeight;}
+function saveM(){localStorage.setItem('jarvis_memory',JSON.stringify(MEMORY.slice(-30)));}
+function add(t,w){const d=document.createElement('div');d.style.margin='6px 0';d.textContent=(w==='user'?'YOU: ':'JARVIS: ')+t;chat.appendChild(d);chat.scrollTop=chat.scrollHeight;}
 MEMORY.forEach(m=>add(m.text,m.role==='user'?'user':'ai'));
-async function ask(text){
-add(text,'user');
-add('Thinking...','ai');
-const thinking=chat.lastChild;
+function getTime(){return new Date().toLocaleString('en-IN',{timeZone:'Asia/Kolkata',hour12:true})+' IST';}
+async function ask(text,imgB64){
+add(text,'user');add('Thinking...','ai');const think=chat.lastChild;
 try{
-if(!API_KEY) throw new Error('Set API key first');
+const tl=text.toLowerCase();
+if(tl.includes('time now')||tl.includes('what is time')||tl.includes('time entha')){const t=getTime();MEMORY.push({role:'user',text:text});MEMORY.push({role:'model',text:t});saveM();think.textContent='JARVIS: '+t;return;}
+if(!API_KEY)throw new Error('Set API key');
 const contents=MEMORY.slice(-8).map(m=>({role:m.role,parts:[{text:m.text}]}));
-contents.push({role:'user',parts:[{text:text}]});
+let userParts=[{text:text}];if(imgB64)userParts.push({inline_data:{mime_type:'image/jpeg',data:[STRIPPED]
+contents.push({role:'user',parts:userParts});
 let reply=null,err=null;
-for(const model of MODELS){
-try{
-const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+API_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents})});
-const data=await res.json();
-if(data.error){err=data.error.message;continue;}
-const r=data?.candidates?.[0]?.content?.parts?.map(p=>p.text).join('\n');
-if(r){reply=r;break;}
-}catch(e){err=e.message;}
-}
-if(!reply) throw new Error(err||'Gemini failed');
-MEMORY.push({role:'user',text:text});MEMORY.push({role:'model',text:reply});saveMem();
-thinking.textContent='JARVIS: '+reply;
-}catch(e){thinking.textContent='ERROR: '+e.message; if(e.message.includes('API')) showOverlay();}
-}
+for(const model of MODELS){try{const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+API_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents})});const data=await res.json();if(data.error){err=data.error.message;continue;}const r=data?.candidates?.[0]?.content?.parts?.map(p=>p.text).join('\n');if(r){reply=r;break;}}catch(e){err=e.message;}}
+if(!reply)throw new Error(err||'Gemini failed');
+MEMORY.push({role:'user',text:text});MEMORY.push({role:'model',text:reply});saveM();think.textContent='JARVIS: '+reply;
+}catch(e){think.textContent='ERROR: '+e.message;if(e.message.includes('API'))showO();}}
 function sendNow(){const t=input.value.trim();if(!t)return;input.value='';ask(t);}
-sendBtn.onclick=sendNow;
-input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendNow();}});
-clearBtn.onclick=()=>{MEMORY=[];saveMem();chat.innerHTML='';add('Cleared','ai');};
-document.querySelector('.header').onclick=()=>{if(confirm('Reset API key?')){localStorage.removeItem('jarvis_key');API_KEY='';showOverlay();}};
-if(API_KEY) setTimeout(()=>add('Mark 42 HUD active. Type Hello jarvis','ai'),500);
-</script>
-</body>
-</html>
+sendBtn.onclick=sendNow;input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendNow();}});
+clearBtn.onclick=()=>{MEMORY=[];saveM();chat.innerHTML='';add('Cleared','ai');};
+camBtn.onclick=()=>imgIn.click();
+imgIn.onchange=()=>{const f=imgIn.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const b64=r.result.split(',')[1];const q=input.value.trim()||'What do you see?';input.value='';ask('[IMAGE] '+q,b64);};r.readAsDataURL(f);};
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null;if(SR){rec=new SR();rec.lang='en-US';}
+if(rec){rec.onresult=e=>{const t=e.results[0][0].transcript;add(t,'user');ask(t);};rec.onend=()=>{micBtn.textContent='🎤';micBtn.classList.remove('rec');};rec.onerror=()=>{micBtn.textContent='🎤';micBtn.classList.remove('rec');};}
+micBtn.onclick=()=>{if(!rec)return add('Mic not supported in this WebView - use Chrome','ai');try{rec.start();micBtn.textContent='🔴';micBtn.classList.add('rec');}catch(e){}};
+document.querySelector('.header').onclick=()=>{if(confirm('Reset API key?')){localStorage.removeItem('jarvis_key');API_KEY='';showO();}};
+if(API_KEY)setTimeout(()=>add('Mark 42 HUD active. Mic+Cam added.','ai'),600);
+</script></body></html>
