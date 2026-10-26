@@ -1,37 +1,44 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>JARVIS COMPLETE</title><style>body{background:#000;color:#0ff;font-family:monospace;margin:0;display:flex;flex-direction:column;height:100vh}.header{height:48px;background:#001a24;border-bottom:1px solid #0ff;display:flex;align-items:center;justify-content:space-between;padding:0 10px;font-size:11px;letter-spacing:.2em}#core{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}.ring{width:110px;height:110px;border:2px solid #0ff;border-top-color:transparent;border-radius:50%;animation:spin 2s linear infinite;box-shadow:0 0 18px #0ff}@keyframes spin{to{transform:rotate(360deg)}}#chat{height:36vh;overflow-y:auto;background:#000a14;border-top:1px solid #0ff;padding:10px;font-size:12px;line-height:1.4}.controls{height:58px;display:flex;gap:5px;padding:6px;background:#000;border-top:1px solid #0ff}input{flex:1;background:#111;color:#0ff;border:1px solid #0ff;border-radius:8px;padding:10px;outline:none}button{padding:10px 12px;background:#003344;color:#0ff;border:1px solid #0ff;border-radius:8px;cursor:pointer}#send{background:#0ff;color:#000;font-weight:900}#mic.rec{background:#ff0000;color:#fff;animation:pulse 1s infinite}@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}#overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:99}#box{background:#001a24;border:1px solid #0ff;border-radius:12px;padding:20px;width:90%;max-width:320px}</style></head><body><div id="overlay"><div id="box"><h3 style="color:#0ff;text-align:center">ENTER GEMINI API KEY</h3><input id="api-in" placeholder="AIza..." style="width:100%;padding:10px;background:#000;color:#0ff;border:1px solid #0ff;border-radius:6px"><button id="api-save" style="width:100%;margin-top:10px;padding:10px;background:#0ff;color:#000;border:0;border-radius:6px;font-weight:900">SAVE</button></div></div><div class="header"><span>J.A.R.V.I.S - TONY STARK FINAL - FIXED</span><span style="color:#0f0">● ONLINE</span></div><div id="core"><div class="ring"></div><div style="margin-top:18px;font-size:10px;letter-spacing:.3em">HOLO • STANDBY</div></div><div id="chat"></div><div class="controls"><input id="msg" placeholder="Ask JARVIS..."><button id="send">➤</button><button id="mic">🎤</button><button id="cam">📷</button><button id="clear">✕</button><input type="file" id="img-in" accept="image/*" style="display:none"></div><script>
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>JARVIS COMPLETE FIX</title><style>html,body{margin:0;height:100%}body{background:#000;color:#0ff;font-family:monospace;display:flex;flex-direction:column}.hdr{height:44px;background:#001a24;border-bottom:1px solid #0ff;display:flex;align-items:center;justify-content:space-between;padding:0 10px;font-size:11px;letter-spacing:.15em}.ringbox{height:34vh;display:flex;flex-direction:column;align-items:center;justify-content:center;border-bottom:1px solid #0ff}.ring{width:100px;height:100px;border:2px solid #0ff;border-top-color:transparent;border-radius:50%;animation:sp 1.5s linear infinite;box-shadow:0 0 15px #0ff}@keyframes sp{to{transform:rotate(360deg)}}#chat{flex:1;overflow-y:auto;background:#000d14;padding:10px;font-size:12px;min-height:30vh}.controls{height:64px;display:flex;gap:5px;padding:6px;background:#000a1a;border-top:1px solid #0ff;align-items:center}.controls input{flex:1;background:#111;color:#0ff;border:1px solid #0ff;border-radius:10px;padding:12px;outline:none}.controls button{width:48px;height:48px;background:#002a33;color:#0ff;border:1px solid #0ff;border-radius:10px;font-size:18px}#send{background:#0ff;color:#000;font-weight:900}#ov{position:fixed;inset:0;background:rgba(0,0,0,.95);display:flex;align-items:center;justify-content:center;z-index:9999}#bx{background:#001a24;border:1px solid #0ff;border-radius:12px;padding:18px;width:88%;max-width:320px}#bx input{width:100%;padding:10px;background:#000;color:#0ff;border:1px solid #0ff;border-radius:6px;margin-top:8px}#bx button{width:100%;margin-top:10px;padding:11px;background:#0ff;color:#000;border:0;border-radius:6px;font-weight:900}</style></head><body>
+<div id="ov"><div id="bx"><h3 style="color:#0ff;margin:0;text-align:center">ENTER GEMINI API KEY</h3><p style="font-size:11px;color:#888">Key leni chota APK buttons pani cheyavu</p><input id="apiIn" placeholder="AIza..."><button id="apiSave">SAVE & START</button><button id="skipBtn" style="background:transparent;color:#0ff;border:1px solid #0ff;margin-top:6px">SKIP (Test with time only)</button></div></div>
+<div class="hdr"><span>J.A.R.V.I.S - TONY STARK FINAL - FIXED</span><span style="color:#0f0">● ONLINE</span></div>
+<div class="ringbox"><div class="ring"></div><div style="margin-top:14px;font-size:10px;letter-spacing:.3em">HOLO • STANDBY</div></div>
+<div id="chat"></div>
+<div class="controls"><input id="msg" placeholder="Ask JARVIS..."><button id="send">➤</button><button id="mic">🎤</button><button id="cam">📷</button><button id="clear">✕</button><input type="file" id="imgIn" accept="image/*" hidden></div>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
 let API_KEY=localStorage.getItem('jarvis_key')||'';
 const MODELS=["gemini-2.0-flash","gemini-2.0-flash-lite","gemini-flash-latest"];
-const chat=document.getElementById('chat'),input=document.getElementById('msg'),sendBtn=document.getElementById('send'),micBtn=document.getElementById('mic'),camBtn=document.getElementById('cam'),clearBtn=document.getElementById('clear'),imgIn=document.getElementById('img-in'),overlay=document.getElementById('overlay'),apiIn=document.getElementById('api-in'),apiSave=document.getElementById('api-save');
-function showO(){overlay.style.display='flex';}function hideO(){overlay.style.display='none';}
-if(!API_KEY)showO();
-apiSave.onclick=()=>{const v=apiIn.value.trim();if(!v)return alert('Enter key');API_KEY=v;localStorage.setItem('jarvis_key',v);hideO();add('Key saved - Ready','ai');};
+const chat=document.getElementById('chat'),msg=document.getElementById('msg'),sendBtn=document.getElementById('send'),micBtn=document.getElementById('mic'),camBtn=document.getElementById('cam'),clearBtn=document.getElementById('clear'),imgIn=document.getElementById('imgIn'),ov=document.getElementById('ov'),apiIn=document.getElementById('apiIn'),apiSave=document.getElementById('apiSave'),skipBtn=document.getElementById('skipBtn');
+function showO(){ov.style.display='flex';}function hideO(){ov.style.display='none';}
+function add(t,who){const d=document.createElement('div');d.style.margin='7px 0';d.style.wordBreak='break-word';d.textContent=(who==='user'?'YOU: ':'JARVIS: ')+t;chat.appendChild(d);chat.scrollTop=chat.scrollHeight;}
+if(!API_KEY){showO();}else{hideO();setTimeout(()=>add('Mark 42 HUD active. API key loaded.','ai'),500);}
+apiSave.onclick=function(){const v=apiIn.value.trim();if(!v){alert('Enter key');return;}API_KEY=v;localStorage.setItem('jarvis_key',v);hideO();add('Key saved! Ready sir.','ai');};
+skipBtn.onclick=function(){hideO();add('Skipped key - Time command works without API. Example: what is time now','ai');};
 let MEMORY=[];try{MEMORY=JSON.parse(localStorage.getItem('jarvis_memory')||'[]')}catch(e){MEMORY=[]}
-function saveM(){localStorage.setItem('jarvis_memory',JSON.stringify(MEMORY.slice(-30)));}
-function add(t,w){const d=document.createElement('div');d.style.margin='6px 0';d.textContent=(w==='user'?'YOU: ':'JARVIS: ')+t;chat.appendChild(d);chat.scrollTop=chat.scrollHeight;}
-MEMORY.forEach(m=>add(m.text,m.role==='user'?'user':'ai'));
+function saveM(){try{localStorage.setItem('jarvis_memory',JSON.stringify(MEMORY.slice(-30)));}catch(e){}}
+MEMORY.forEach(function(m){add(m.text,m.role==='user'?'user':'ai');});
 function getTime(){return new Date().toLocaleString('en-IN',{timeZone:'Asia/Kolkata',hour12:true})+' IST';}
 async function ask(text,imgB64){
-add(text,'user');add('Thinking...','ai');const think=chat.lastChild;
+add(text,'user');const think=document.createElement('div');think.style.margin='7px 0';think.textContent='JARVIS: Thinking...';chat.appendChild(think);chat.scrollTop=chat.scrollHeight;
 try{
 const tl=text.toLowerCase();
-if(tl.includes('time now')||tl.includes('what is time')||tl.includes('time entha')){const t=getTime();MEMORY.push({role:'user',text:text});MEMORY.push({role:'model',text:t});saveM();think.textContent='JARVIS: '+t;return;}
-if(!API_KEY)throw new Error('Set API key');
-const contents=MEMORY.slice(-8).map(m=>({role:m.role,parts:[{text:m.text}]}));
-let userParts=[{text:text}];if(imgB64)userParts.push({inline_data:{mime_type:'image/jpeg',data:[STRIPPED]
-contents.push({role:'user',parts:userParts});
-let reply=null,err=null;
-for(const model of MODELS){try{const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+API_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents})});const data=await res.json();if(data.error){err=data.error.message;continue;}const r=data?.candidates?.[0]?.content?.parts?.map(p=>p.text).join('\n');if(r){reply=r;break;}}catch(e){err=e.message;}}
-if(!reply)throw new Error(err||'Gemini failed');
+if(tl.includes('time now')||tl.includes('what is time')||tl.includes('time entha')||tl.includes('ippudu time')){const t=getTime();MEMORY.push({role:'user',text:text});MEMORY.push({role:'model',text:t});saveM();think.textContent='JARVIS: '+t;return;}
+if(!API_KEY){think.textContent='ERROR: API key ledu. Top left header click chesi reset cheyyi.';showO();return;}
+const contents=MEMORY.slice(-8).map(function(m){return {role:m.role,parts:[{text:m.text}]};});
+let parts=[{text:text}];if(imgB64)parts.push({inline_data:{mime_type:'image/jpeg',data:[STRIPPED]
+contents.push({role:'user',parts:parts});
+let reply=null,lastErr=null;
+for(let i=0;i<MODELS.length;i++){const model=MODELS[i];try{const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+API_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:contents})});const data=await res.json();if(data.error){lastErr=data.error.message;continue;}const r=data?.candidates?.[0]?.content?.parts?.map(function(p){return p.text;}).join('\n');if(r){reply=r;break;}}catch(e){lastErr=e.message;}}
+if(!reply)throw new Error(lastErr||'Gemini failed');
 MEMORY.push({role:'user',text:text});MEMORY.push({role:'model',text:reply});saveM();think.textContent='JARVIS: '+reply;
-}catch(e){think.textContent='ERROR: '+e.message;if(e.message.includes('API'))showO();}}
-function sendNow(){const t=input.value.trim();if(!t)return;input.value='';ask(t);}
-sendBtn.onclick=sendNow;input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendNow();}});
-clearBtn.onclick=()=>{MEMORY=[];saveM();chat.innerHTML='';add('Cleared','ai');};
-camBtn.onclick=()=>imgIn.click();
-imgIn.onchange=()=>{const f=imgIn.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const b64=r.result.split(',')[1];const q=input.value.trim()||'What do you see?';input.value='';ask('[IMAGE] '+q,b64);};r.readAsDataURL(f);};
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null;if(SR){rec=new SR();rec.lang='en-US';}
-if(rec){rec.onresult=e=>{const t=e.results[0][0].transcript;add(t,'user');ask(t);};rec.onend=()=>{micBtn.textContent='🎤';micBtn.classList.remove('rec');};rec.onerror=()=>{micBtn.textContent='🎤';micBtn.classList.remove('rec');};}
-micBtn.onclick=()=>{if(!rec)return add('Mic not supported in this WebView - use Chrome','ai');try{rec.start();micBtn.textContent='🔴';micBtn.classList.add('rec');}catch(e){}};
-document.querySelector('.header').onclick=()=>{if(confirm('Reset API key?')){localStorage.removeItem('jarvis_key');API_KEY='';showO();}};
-if(API_KEY)setTimeout(()=>add('Mark 42 HUD active. Mic+Cam added.','ai'),600);
+}catch(e){think.textContent='ERROR: '+e.message;if(String(e.message).toLowerCase().includes('api'))showO();}}
+function sendNow(){const t=msg.value.trim();if(!t)return;msg.value='';ask(t);}
+sendBtn.onclick=sendNow;msg.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();sendNow();}});
+clearBtn.onclick=function(){MEMORY=[];saveM();chat.innerHTML='';add('Cleared','ai');};
+camBtn.onclick=function(){imgIn.click();};
+imgIn.onchange=function(){const f=imgIn.files[0];if(!f)return;const r=new FileReader();r.onload=function(){const b64=r.result.split(',')[1];const q=msg.value.trim()||'What do you see?';msg.value='';ask('[IMAGE] '+q,b64);};r.readAsDataURL(f);};
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null;if(SR){rec=new SR();rec.lang='en-US';rec.onresult=function(e){const t=e.results[0][0].transcript;ask(t);};rec.onend=function(){micBtn.textContent='🎤';};rec.onerror=function(){micBtn.textContent='🎤';};}
+micBtn.onclick=function(){if(!rec){add('Mic not supported in WebView','ai');return;}try{rec.start();micBtn.textContent='🔴';}catch(e){}};
+document.querySelector('.hdr').onclick=function(){if(confirm('Reset API key?')){localStorage.removeItem('jarvis_key');API_KEY='';apiIn.value='';showO();}};
+});
 </script></body></html>
