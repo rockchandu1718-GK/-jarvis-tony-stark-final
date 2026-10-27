@@ -1,39 +1,52 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>JARVIS AQ FIX</title>
-<style>body{margin:0;background:#000;color:#0ff;font-family:monospace;display:flex;flex-direction:column;height:100vh}.hdr{height:44px;background:#001a24;border-bottom:1px solid #0ff;display:flex;align-items:center;justify-content:space-between;padding:0 10px;font-size:11px}#core{height:32vh;display:flex;flex-direction:column;align-items:center;justify-content:center;border-bottom:1px solid #0ff}.ring{width:100px;height:100px;border:2px solid #0ff;border-top-color:transparent;border-radius:50%;animation:s 1.5s linear infinite;box-shadow:0 0 15px #0ff}@keyframes s{to{transform:rotate(360deg)}}#chat{flex:1;overflow-y:auto;background:#000d14;padding:10px;font-size:12px}#ct{height:64px;display:flex;gap:5px;padding:6px;background:#000;border-top:1px solid #0ff}#ct input{flex:1;background:#111;color:#0ff;border:1px solid #0ff;border-radius:10px;padding:12px}#ct button{width:48px;height:48px;background:#002a33;color:#0ff;border:1px solid #0ff;border-radius:10px;font-size:18px}#send{background:#0ff;color:#000;font-weight:900}#ov{position:fixed;inset:0;background:rgba(0,0,0,.96);display:flex;align-items:center;justify-content:center;z-index:99999}#bx{background:#001a24;border:2px solid #0ff;border-radius:14px;padding:18px;width:88%;max-width:340px}#bx input{width:100%;box-sizing:border-box;padding:12px;background:#000;color:#0ff;border:1px solid #0ff;border-radius:8px;margin-top:10px}#bx button{width:100%;box-sizing:border-box;padding:13px;border-radius:8px;font-weight:900;margin-top:10px}</style>
-<script>
-function saveKeyNow(){try{var el=document.getElementById('apiIn');var v=el.value.trim();if(!v){alert('Paste your key');return;}localStorage.setItem('jarvis_key',v);document.getElementById('ov').style.display='none';var c=document.getElementById('chat');var d=document.createElement('div');d.style.margin='7px 0';d.textContent='JARVIS: AQ Key saved! '+v.substring(0,12)+'... Ready sir.';c.appendChild(d);alert('✅ Key saved!');}catch(e){alert('Save error: '+e.message);}}
-function skipKey(){document.getElementById('ov').style.display='none';}
-function doSend(){var i=document.getElementById('msg');var t=i.value.trim();if(!t)return;i.value='';window.askJarvis(t);}
-</script>
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>JARVIS FINAL WORKING</title>
+<style>body{margin:0;background:#000;color:#0ff;font-family:monospace;display:flex;flex-direction:column;height:100vh}.hdr{height:44px;background:#001a24;border-bottom:1px solid #0ff;display:flex;align-items:center;justify-content:space-between;padding:0 10px;font-size:11px}.core{height:30vh;display:flex;flex-direction:column;align-items:center;justify-content:center;border-bottom:1px solid #0ff}.ring{width:90px;height:90px;border:2px solid #0ff;border-top-color:transparent;border-radius:50%;animation:sp 1.2s linear infinite;box-shadow:0 0 15px #0ff}@keyframes sp{to{transform:rotate(360deg)}}#chat{flex:1;overflow-y:auto;background:#000d14;padding:10px;font-size:13px;line-height:1.5}#controls{height:66px;display:flex;gap:5px;padding:6px;background:#000;border-top:1px solid #0ff;align-items:center}#controls input{flex:1;background:#111;color:#0ff;border:1px solid #0ff;border-radius:10px;padding:13px;outline:none;font-size:15px}#controls button{width:48px;height:48px;background:#002a33;color:#0ff;border:1px solid #0ff;border-radius:10px;font-size:18px}#sendBtn{background:#0ff;color:#000;font-weight:900}#ov{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:99999}#bx{background:#001a24;border:2px solid #0ff;border-radius:14px;padding:20px;width:86%;max-width:340px}#bx input{width:100%;box-sizing:border-box;padding:12px;background:#000;color:#0ff;border:1px solid #0ff;border-radius:8px;margin-top:12px;font-size:15px}#bx button{width:100%;padding:13px;border-radius:8px;font-weight:900;margin-top:12px;font-size:15px}</style>
 </head><body>
-<div id="ov"><div id="bx"><h3 style="color:#0ff;margin:0;text-align:center">ENTER GEMINI API KEY</h3><p style="font-size:11px;color:#0ff;margin:6px 0">AQ... keys work! Paste from AI Studio</p><input id="apiIn" placeholder="AQ.Ab8RN6I..." type="text"><button onclick="saveKeyNow();return false;" style="background:#0ff;color:#000;border:0">SAVE & START</button><button onclick="skipKey();return false;" style="background:transparent;color:#0ff;border:1px solid #0ff">SKIP</button></div></div>
+<div id="ov"><div id="bx"><h3 style="color:#0ff;margin:0;text-align:center">ENTER GEMINI API KEY</h3><p style="font-size:12px;color:#0ff;text-align:center">AQ... keys work! Paste here</p><input id="apiIn" placeholder="AQ.Ab8RN6..." type="text"><button id="saveBtn" style="background:#0ff;color:#000;border:0">SAVE & START</button><button id="skipBtn" style="background:transparent;color:#0ff;border:1px solid #0ff">SKIP - Test Time</button></div></div>
 <div class="hdr"><span>J.A.R.V.I.S - TONY STARK FINAL - FIXED</span><span style="color:#0f0">● ONLINE</span></div>
-<div id="core"><div class="ring"></div><div style="margin-top:12px;font-size:10px;letter-spacing:.3em">HOLO • STANDBY • AQ SUPPORT</div></div>
+<div class="core"><div class="ring"></div><div style="margin-top:10px;font-size:10px;letter-spacing:.3em">HOLO • STANDBY • AQ SUPPORT</div></div>
 <div id="chat"></div>
-<div id="ct"><input id="msg" placeholder="Ask JARVIS..."><button id="send" onclick="doSend()">➤</button><button onclick="alert('Mic: allow permission')">🎤</button><button onclick="document.getElementById('imgIn').click()">📷</button><button onclick="if(confirm('Reset key?')){localStorage.clear();location.reload();}">✕</button><input type="file" id="imgIn" accept="image/*" hidden></div>
+<div id="controls"><input id="msg" placeholder="Ask JARVIS... Hii jarvis" type="text"><button id="sendBtn">➤</button><button id="micBtn">🎤</button><button id="camBtn">📷</button><button id="clearBtn">✕</button><input type="file" id="imgIn" accept="image/*" hidden></div>
 <script>
-var API_KEY=localStorage.getItem('jarvis_key')||'';var MODELS=["gemini-2.0-flash","gemini-2.0-flash-lite","gemini-flash-latest","gemini-1.5-flash-latest"];var MEMORY=[];try{MEMORY=JSON.parse(localStorage.getItem('jarvis_memory')||'[]')}catch(e){}
-function add(t,w){var ch=document.getElementById('chat');var d=document.createElement('div');d.style.margin='7px 0';d.textContent=(w==='user'?'YOU: ':'JARVIS: ')+t;ch.appendChild(d);ch.scrollTop=ch.scrollHeight;}
+(function(){
+var API_KEY=localStorage.getItem('jarvis_key')||'';
+var MODELS=["gemini-2.0-flash","gemini-2.0-flash-lite","gemini-flash-latest","gemini-1.5-flash-latest"];
+var chat=document.getElementById('chat'),msg=document.getElementById('msg'),sendBtn=document.getElementById('sendBtn'),micBtn=document.getElementById('micBtn'),camBtn=document.getElementById('camBtn'),clearBtn=document.getElementById('clearBtn'),imgIn=document.getElementById('imgIn'),ov=document.getElementById('ov'),apiIn=document.getElementById('apiIn'),saveBtn=document.getElementById('saveBtn'),skipBtn=document.getElementById('skipBtn');
+function showO(){ov.style.display='flex';}function hideO(){ov.style.display='none';}
+if(API_KEY)hideO();else showO();
+saveBtn.onclick=function(){var v=apiIn.value.trim();if(!v){alert('Paste key');return;}localStorage.setItem('jarvis_key',v);alert('✅ AQ Key saved! Reloading...');location.reload();};
+skipBtn.onclick=function(){hideO();add('Skipped key - type: what is time now','ai');};
+var MEMORY=[];try{MEMORY=JSON.parse(localStorage.getItem('jarvis_memory')||'[]')}catch(e){}
+function add(t,who){var d=document.createElement('div');d.style.margin='8px 0';d.style.wordBreak='break-word';d.textContent=(who==='user'?'YOU: ':'JARVIS: ')+t;chat.appendChild(d);chat.scrollTop=chat.scrollHeight;}
 function saveM(){try{localStorage.setItem('jarvis_memory',JSON.stringify(MEMORY.slice(-30)));}catch(e){}}
-if(API_KEY){document.getElementById('ov').style.display='none';}else{document.getElementById('ov').style.display='flex';}
 MEMORY.forEach(function(m){add(m.text,m.role==='user'?'user':'ai');});
-function getTime(){return new Date().toLocaleString('en-IN',{timeZone:'Asia/Kolkata',hour12:true})+' IST';}
-window.askJarvis=async function(text,imgB64){
-add(text,'user');var think=document.createElement('div');think.textContent='JARVIS: Thinking...';document.getElementById('chat').appendChild(think);
+function getTime(){return new Date().toLocaleString('en-IN',{timeZone:'Asia/Kolkata',hour12:true})+' IST - '+new Date().toDateString();}
+async function ask(text,imgB64){
+add(text,'user');
+var think=document.createElement('div');think.style.margin='8px 0';think.style.color='#ff0';think.textContent='JARVIS: Thinking...';chat.appendChild(think);chat.scrollTop=chat.scrollHeight;
 try{
 var tl=text.toLowerCase();
-if(tl.includes('time now')||tl.includes('what is time')||tl.includes('time entha')||tl.includes('ippudu time')){var t=getTime();MEMORY.push({role:'user',text:text});MEMORY.push({role:'model',text:t});saveM();think.textContent='JARVIS: '+t;return;}
-if(!API_KEY){think.textContent='ERROR: No key';document.getElementById('ov').style.display='flex';return;}
+if(tl.includes('time now')||tl.includes('what is time')||tl.includes('time entha')||tl.includes('ippudu time')||tl.includes('what time')){var t=getTime();MEMORY.push({role:'user',text:text});MEMORY.push({role:'model',text:t});saveM();think.style.color='#0ff';think.textContent='JARVIS: '+t;return;}
+API_KEY=localStorage.getItem('jarvis_key')||'';
+if(!API_KEY){think.textContent='JARVIS: API key ledu - top lo reset cheyyi';showO();return;}
 var contents=MEMORY.slice(-8).map(function(m){return {role:m.role,parts:[{text:m.text}]};});
 var parts=[{text:text}];if(imgB64)parts.push({inline_data:{mime_type:'image/jpeg',data:[STRIPPED]
 contents.push({role:'user',parts:parts});
-var reply=null,lastErr=null;
-for(var i=0;i<MODELS.length;i++){var model=MODELS[i];try{var res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+API_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:contents})});var data=await res.json();if(data.error){lastErr=data.error.message;continue;}var r=data?.candidates?.[0]?.content?.parts?.map(function(p){return p.text;}).join('\n');if(r){reply=r;break;}}catch(e){lastErr=e.message;}}
-if(!reply)throw new Error(lastErr||'Failed - check API enabled');
-MEMORY.push({role:'user',text:text});MEMORY.push({role:'model',text:reply});saveM();think.textContent='JARVIS: '+reply;
-}catch(e){think.textContent='ERROR: '+e.message;}
-};
-document.getElementById('msg').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();doSend();}});
-document.getElementById('imgIn').onchange=function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(){var b64=r.result.split(',')[1];window.askJarvis('What do you see?',b64);};r.readAsDataURL(f);};
-if(API_KEY)setTimeout(function(){add('Mark 42 HUD active. AQ key support enabled.','ai');},400);
+var reply=null,lastErr='unknown';
+for(var i=0;i<MODELS.length;i++){var model=MODELS[i];try{var res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+API_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:contents})});var data=await res.json();if(data.error){lastErr=data.error.message+' ['+model+']';continue;}var r=data?.candidates?.[0]?.content?.parts?.map(function(p){return p.text;}).join('\n');if(r){reply=r;break;}}catch(e){lastErr=e.message;}}
+if(!reply)throw new Error(lastErr);
+MEMORY.push({role:'user',text:text});MEMORY.push({role:'model',text:reply});saveM();think.style.color='#0ff';think.textContent='JARVIS: '+reply;
+}catch(e){think.style.color='#f55';think.textContent='ERROR: '+e.message;}}
+function sendNow(){var t=msg.value.trim();if(!t)return;msg.value='';ask(t);}
+sendBtn.onclick=sendNow;
+msg.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();sendNow();}});
+msg.addEventListener('input',function(){this.style.borderColor='#0ff';});
+clearBtn.onclick=function(){if(confirm('Clear chat?')){MEMORY=[];saveM();chat.innerHTML='';add('Cleared','ai');}};
+camBtn.onclick=function(){imgIn.click();};
+imgIn.onchange=function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(){var b64=r.result.split(',')[1];ask('What do you see in image?',b64);};r.readAsDataURL(f);};
+// REAL MIC
+var SR=window.SpeechRecognition||window.webkitSpeechRecognition;var rec=null;if(SR){rec=new SR();rec.lang='en-US';rec.continuous=false;rec.interimResults=false;rec.onstart=function(){micBtn.textContent='🔴';micBtn.style.background='#f00';add('Listening... speak now','ai');};rec.onresult=function(e){var t=e.results[0][0].transcript;add('Heard: '+t,'user');ask(t);};rec.onend=function(){micBtn.textContent='🎤';micBtn.style.background='#002a33';};rec.onerror=function(e){micBtn.textContent='🎤';micBtn.style.background='#002a33';add('Mic error: '+e.error+' - Check permission','ai');};}
+micBtn.onclick=function(){if(!rec){add('Mic not supported in this WebView - try Chrome','ai');return;}try{rec.start();}catch(e){try{rec.stop();setTimeout(function(){rec.start();},300);}catch(e2){add('Mic busy - try again','ai');}}};
+document.querySelector('.hdr').onclick=function(){if(confirm('Reset API key?')){localStorage.removeItem('jarvis_key');location.reload();}};
+setTimeout(function(){if(API_KEY)add('Mark 42 HUD active. AQ key ready. Type Hii jarvis','ai');},500);
+})();
 </script></body></html>
