@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.speech.tts.TextToSpeech
 import android.webkit.JavascriptInterface
 import android.webkit.PermissionRequest
 import android.webkit.WebChromeClient
@@ -14,19 +13,17 @@ import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import java.util.*
 
-class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
+class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
-    private var tts: TextToSpeech? = null
 
     inner class WebAppInterface {
         @JavascriptInterface
         fun sendWhatsApp(phone: String, message: String) {
             try {
-                val cleanPhone = phone.replace(Regex("[^0-9]"), "")
-                val uri = if (cleanPhone.isNotEmpty() && cleanPhone.length > 5) {
-                    Uri.parse("https://wa.me/${cleanPhone}?text=${Uri.encode(message)}")
+                val clean = phone.replace(Regex("[^0-9]"), "")
+                val uri = if (clean.length > 5) {
+                    Uri.parse("https://wa.me/${clean}?text=${Uri.encode(message)}")
                 } else {
                     Uri.parse("https://wa.me/?text=${Uri.encode(message)}")
                 }
@@ -48,12 +45,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 val intent = Intent(Intent.ACTION_VIEW, uri)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 startActivity(intent)
-            } catch (e: Exception) {}
-        }
-
-        @JavascriptInterface
-        fun speak(text: String) {
-            tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+            } catch (_: Exception) {}
         }
 
         @JavascriptInterface
@@ -69,26 +61,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             }
         }
-
-        @JavascriptInterface
-        fun makeCall(phone: String) {
-            try {
-                val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phone"))
-                startActivity(intent)
-            } catch (_: Exception) {}
-        }
-    }
-
-    override fun onInit(status: Int) {
-        if (status == TextToSpeech.SUCCESS) {
-            tts?.language = Locale.UK
-            tts?.setSpeechRate(0.9f)
-        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        tts = TextToSpeech(this, this)
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA), 1)
         }
@@ -110,12 +86,6 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
         setContentView(webView)
         webView.loadUrl("file:///android_asset/jarvis.html")
-    }
-
-    override fun onDestroy() {
-        tts?.stop()
-        tts?.shutdown()
-        super.onDestroy()
     }
 
     override fun onBackPressed() {
